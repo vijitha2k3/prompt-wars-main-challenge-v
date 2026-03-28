@@ -1,4 +1,4 @@
-import { Phone, MapPin, CheckCircle2, Circle, ShieldAlert, Users } from 'lucide-react';
+import { Phone, MapPin, CheckCircle2, ShieldAlert, Users, Navigation } from 'lucide-react';
 import './ActionPanel.css';
 
 export default function ActionPanel({ data }) {
@@ -6,18 +6,22 @@ export default function ActionPanel({ data }) {
   const callable = police_contact.phone.replace(/[^\d+]/g, '');
 
   return (
-    <div className="action-panel">
-      {/* Direct Call CTA */}
-      <div className="call-block">
+    <div className="action-panel animate-fade-in">
+      {/* Live Verified Police Search result */}
+      <div className="call-block verified">
         <div className="call-block-left">
           <div className="call-icon-wrap">
             <Phone size={22} />
-            <div className="call-pulse-ring" />
           </div>
-          <div>
-            <div className="call-label">Nearest Police Station</div>
+          <div className="call-info">
+            <div className="call-badge">Nearest Verified Station</div>
             <div className="call-station">{police_contact.station}</div>
             <div className="call-phone">{police_contact.phone}</div>
+            {police_contact.distance && (
+              <div className="call-meta">
+                <Navigation size={12} /> {police_contact.distance} · {police_contact.type}
+              </div>
+            )}
           </div>
         </div>
         <a
@@ -29,42 +33,54 @@ export default function ActionPanel({ data }) {
         </a>
       </div>
 
-      {/* Location Summary */}
-      <div className="location-block">
-        <MapPin size={15} />
-        <div>
-          <span className="location-label">Child found at: </span>
-          <span className="location-value">{location}</span>
+      {/* Station Address & Location details */}
+      <div className="location-detail-block">
+        <div className="location-row">
+          <MapPin size={16} className="loc-icon" />
+          <div className="loc-text">
+            <span className="loc-label">Child Found Location:</span>
+            <span className="loc-value">{location}</span>
+          </div>
         </div>
+        
+        {police_contact.address && (
+          <div className="location-row">
+            <Navigation size={16} className="loc-icon station" />
+            <div className="loc-text">
+              <span className="loc-label">Station Physical Address:</span>
+              <span className="loc-value">{police_contact.address}</span>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Next Steps Checklist */}
+      {/* Expert Directions & Notes */}
+      {police_contact.notes && (
+        <div className="notes-block">
+          <ShieldAlert size={14} className="notes-icon" />
+          <p className="notes-text">{police_contact.notes}</p>
+        </div>
+      )}
+
+      {/* Structured Action Checklist */}
       <div className="steps-block">
         <div className="steps-header">
-          <ShieldAlert size={16} className="steps-icon" />
-          <h3 className="steps-title">Your Action Checklist</h3>
+          <h3 className="steps-title">Rescue Protocol Action Steps</h3>
         </div>
         <div className="steps-list">
           {next_steps.map((step, i) => (
-            <ChecklistItem key={i} index={i + 1} text={step} />
+            <div key={i} className="checklist-item" style={{ animationDelay: `${i * 0.1}s` }}>
+              <div className="checklist-num">{i + 1}</div>
+              <p className="checklist-text">{step}</p>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Safety Notice */}
-      <div className="safety-notice">
-        <Users size={15} />
-        <p>Stay with the child in a well-lit area. Do not hand the child to any stranger — wait for official law enforcement.</p>
+      <div className="safety-footer">
+        <Users size={14} />
+        <p>You have taken the first critical steps. Law enforcement will take over upon contact.</p>
       </div>
-    </div>
-  );
-}
-
-function ChecklistItem({ index, text }) {
-  return (
-    <div className="checklist-item" style={{ animationDelay: `${index * 0.08}s` }}>
-      <div className="checklist-num">{index}</div>
-      <p className="checklist-text">{text}</p>
     </div>
   );
 }

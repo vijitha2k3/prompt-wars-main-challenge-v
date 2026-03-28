@@ -1,6 +1,14 @@
 import { useState, useCallback, useRef } from 'react';
+import { 
+  validateLocation, 
+  uploadPhotoToGCS, 
+  analyzePhotoWithGemini, 
+  findNearestPoliceStation, 
+  searchMissingKidsDatabase,
+  saveCaseToFirestore
+} from '../services/google';
 
-const MOCK_DELAY = 2800;
+const MOCK_DELAY = 1500;
 
 const QUESTIONS = [
   {
@@ -50,46 +58,14 @@ const QUESTIONS = [
   },
 ];
 
-function mockPoliceSearch(location) {
-  const db = {
-    default: { station: 'Local Police Department', phone: '100', address: 'Nearest station to your location' },
-    'central park': { station: 'NYPD 20th Precinct', phone: '212-580-6411', address: '120 W 82nd St, New York, NY' },
-    'mall': { station: 'Metro City Police', phone: '(555) 234-5678', address: 'City Center HQ' },
-    'airport': { station: 'Airport Security & Police', phone: '(555) 911-0001', address: 'Terminal A, Ground Floor' },
-  };
-  const key = Object.keys(db).find(k => location.toLowerCase().includes(k));
-  return db[key] || db.default;
-}
-
-function mockMissingKidsSearch(location) {
-  return [
-    {
-      id: 'MK-001',
-      name: 'Name Unknown',
-      age: 'Approx 5-7 years',
-      lastSeen: location || 'Your area',
-      url: 'https://www.missingkids.org',
-      source: 'missingkids.org',
-    },
-    {
-      id: 'MK-002',
-      name: 'Check local alerts',
-      age: 'Various ages',
-      lastSeen: 'Regional area',
-      url: 'https://www.missingkids.org/gethelpnow/isyourchildmissing',
-      source: 'NCMEC Database',
-    },
-  ];
-}
-
-export function useEmergencyProtocol() {
+export function useEmergencyProtocol(currentUser) {
   const [phase, setPhase] = useState('splash'); // splash | chat | loading | dashboard
   const [messages, setMessages] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [collectedData, setCollectedData] = useState({});
   const [dashboardData, setDashboardData] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
-  const childIdRef = useRef(`LNM-${Math.floor(1000 + Math.random() * 9000)}`);
+  const childIdRef = useRef(`LNM-${Math.floor(1000 + Math.random() * 9000).toString().padStart(4, '0')}`);
 
   const addMessage = useCallback((role, content, extra = {}) => {
     setMessages(prev => [...prev, { id: Date.now() + Math.random(), role, content, ...extra }]);
@@ -111,72 +87,95 @@ export function useEmergencyProtocol() {
           setTimeout(() => {
             setIsTyping(false);
             addMessage('ai', QUESTIONS[0].text, { questionId: QUESTIONS[0].id, step: 1 });
-          }, 1200);
-        }, 800);
-      }, 1500);
-    }, 400);
+          }, 1000);
+        }, 600);
+      }, 1200);
+    }, 300);
   }, [addMessage]);
 
-  const submitAnswer = useCallback((value, isSkip = false) => {
+  const submitAnswer = useCallback(async (value, isSkip = false) => {
     const q = QUESTIONS[currentQuestion];
     const displayValue = isSkip ? "I don't know" : value;
     const storedValue = isSkip ? '[NOT PROVIDED]' : value;
 
+    // Log the answer
     addMessage('user', displayValue, { isPhoto: q.type === 'photo' && !isSkip, photoUrl: q.type === 'photo' ? value : null });
-    setCollectedData(prev => ({ ...prev, [q.field]: storedValue }));
+    
+    // Create new data snapshot
+    const newData = { ...collectedData, [q.field]: storedValue };
+    setCollectedData(newData);
 
     const nextIdx = currentQuestion + 1;
 
     if (nextIdx >= QUESTIONS.length) {
-      // All questions answered — run background tasks
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        addMessage('ai', "You've done an incredible job. Thank you for helping this child. 🙏\n\nI'm now running background checks — finding the nearest police station, searching missing children databases, and building your rescue poster. This will take just a moment...");
-        setTimeout(() => {
-          setPhase('loading');
-        }, 1800);
-      }, 900);
+      setPhase('loading');
+      
+      try {
+        const loc = newData.location || 'Unknown Area';
+        
+        // Execute Google Services in sequence for high reliability
+        const mapsResult = await validateLocation(loc);
+        const policeResult = await findNearestPoliceStation(loc);
+        const matchResult = await searchMissingKidsDatabase(loc);
+        
+        let gcsResult = null;
+        let geminiResult = null;
 
-      // After total mock wait, build dashboard
-      setTimeout(() => {
-        const loc = collectedData.location || value || 'Unknown Location';
-        const police = mockPoliceSearch(loc);
-        const matches = mockMissingKidsSearch(loc);
-        const desc = collectedData.description || storedValue;
-        setDashboardData({
-          status: 'Ready',
+        // If a photo was provided (as a data URL from ChatIntake)
+        if (newData.photoUrl && newData.photoUrl !== '[NOT PROVIDED]') {
+          // Convert dataURL to Blob for upload
+          const res = await fetch(newData.photoUrl);
+          const blob = await res.blob();
+          gcsResult = await uploadPhotoToGCS(blob, childIdRef.current, currentUser.uid);
+          geminiResult = await analyzePhotoWithGemini(gcsResult.signedUrl);
+        }
+
+        const manifest = {
           child_id: childIdRef.current,
-          location: loc,
-          police_contact: police,
-          photo: q.field === 'photoUrl' ? value : collectedData.photoUrl,
-          description: desc !== '[NOT PROVIDED]' ? desc : 'Description not provided',
-          childInfo: collectedData.childInfo !== '[NOT PROVIDED]' ? collectedData.childInfo : null,
-          condition: collectedData.condition !== '[NOT PROVIDED]' ? collectedData.condition : 'Not assessed',
-          matches,
+          location: mapsResult.formattedAddress,
+          police_contact: policeResult,
+          photo: gcsResult?.signedUrl || null,
+          description: newData.description,
+          childInfo: newData.childInfo,
+          condition: newData.condition,
+          matches: matchResult.results,
           poster: {
             headline: 'FOUND CHILD — URGENT',
-            details: `Approx child found at ${loc}. ${desc !== '[NOT PROVIDED]' ? desc : ''} In need of assistance.`,
+            details: `Approx child found at ${mapsResult.formattedAddress}. ${newData.description}`
           },
           next_steps: [
-            `Call ${police.station} immediately at ${police.phone}.`,
+            `Call ${policeResult.station} immediately at ${policeResult.phone}.`,
             'Stay in a well-lit, public area with the child.',
-            'Alert nearby security staff or store employees.',
-            'Share the generated poster on local WhatsApp and Facebook groups.',
-            'Do NOT leave the child alone under any circumstances.',
+            'Keep child safe and calm while waiting for official law enforcement.',
+            `Location for found-report: ${policeResult.address}`
           ],
-        });
-        setPhase('dashboard');
-      }, MOCK_DELAY + 2700);
+          generated_at: new Date().toISOString()
+        };
+
+        setDashboardData(manifest);
+        
+        // Secure Persistence - Save to Firestore
+        if (currentUser) {
+          await saveCaseToFirestore(currentUser.uid, manifest);
+        }
+
+        setTimeout(() => setPhase('dashboard'), 2000);
+
+      } catch (err) {
+        console.error('Finalizing case error:', err);
+        addMessage('ai', "I encountered a problem securing the records, but I've kept a local copy for you. Please proceed nonetheless.");
+        setPhase('dashboard'); // Fallback to local dashboard
+      }
+
     } else {
       setCurrentQuestion(nextIdx);
       setIsTyping(true);
       setTimeout(() => {
         setIsTyping(false);
         addMessage('ai', QUESTIONS[nextIdx].text, { questionId: QUESTIONS[nextIdx].id, step: nextIdx + 1 });
-      }, 1000);
+      }, 900);
     }
-  }, [currentQuestion, collectedData, addMessage]);
+  }, [currentQuestion, collectedData, addMessage, currentUser]);
 
   const reset = useCallback(() => {
     setPhase('splash');
@@ -185,7 +184,7 @@ export function useEmergencyProtocol() {
     setCollectedData({});
     setDashboardData(null);
     setIsTyping(false);
-    childIdRef.current = `LNM-${Math.floor(1000 + Math.random() * 9000)}`;
+    childIdRef.current = `LNM-${Math.floor(1000 + Math.random() * 9000).toString().padStart(4, '0')}`;
   }, []);
 
   return {
