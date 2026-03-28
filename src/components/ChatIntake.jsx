@@ -4,7 +4,7 @@ import './ChatIntake.css';
 
 function TypingIndicator() {
   return (
-    <div className="chat-bubble ai typing-indicator">
+    <div className="chat-bubble ai typing-indicator" data-testid="typing-indicator">
       <div className="typing-dots">
         <span /><span /><span />
       </div>
@@ -179,10 +179,11 @@ export default function ChatIntake({ messages, currentQuestion, questions, isTyp
                   onKeyDown={handleKeyDown}
                   rows={1}
                 />
-                <button
-                  className="send-btn"
-                  onClick={handleSend}
+                <button 
+                  className="send-btn" 
+                  onClick={handleSend} 
                   disabled={!input.trim()}
+                  aria-label="Send"
                 >
                   <Send size={18} />
                 </button>
