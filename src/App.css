@@ -1,0 +1,91 @@
+/* ── App Shell ── */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 600px;
+  margin: 0 auto;
+  background: var(--bg-primary);
+  box-shadow: 0 0 80px rgba(0,0,0,0.8);
+  position: relative;
+}
+
+/* Top Bar */
+.app-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-logo {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.topbar-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.topbar-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 5px 12px;
+}
+
+.topbar-phase-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transition: background var(--transition-base);
+}
+
+.phase-splash { background: var(--text-muted); }
+.phase-chat   { background: var(--accent-amber); animation: pulse-ring 1.5s ease-out infinite; }
+.phase-loading { background: var(--accent-blue); animation: pulse-ring 1.2s ease-out infinite; }
+.phase-dashboard { background: var(--accent-emerald); }
+
+.topbar-phase-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+}
+
+/* Main Content */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.phase-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: calc(100vh - 49px); /* topbar height */
+  overflow: hidden;
+}

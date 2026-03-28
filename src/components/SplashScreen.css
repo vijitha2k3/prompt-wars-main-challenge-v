@@ -1,0 +1,176 @@
+/* ── Splash Screen Styles ── */
+
+.splash {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 32px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background orbs */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, transparent 70%);
+  top: -100px;
+  right: -100px;
+}
+
+.orb-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+  bottom: -80px;
+  left: -80px;
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+/* Brand */
+.splash-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.splash-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(139,92,246,0.1));
+  border: 1px solid rgba(239,68,68,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+  box-shadow: var(--shadow-glow-red);
+}
+
+.splash-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.splash-tagline {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.splash-tagline em {
+  color: var(--text-primary);
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* Emergency banner */
+.splash-emergency-banner {
+  background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(220,38,38,0.06));
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+}
+
+.emergency-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.emergency-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.emergency-sub {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* Features */
+.splash-features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.splash-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  text-align: left;
+  transition: all var(--transition-base);
+}
+
+.splash-feature-item:hover {
+  background: var(--bg-glass-hover);
+  border-color: var(--border-active);
+}
+
+.splash-feature-icon {
+  color: var(--accent-amber);
+  flex-shrink: 0;
+}
+
+.splash-feature-text {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+/* CTA */
+.splash-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.cta-main {
+  width: 100%;
+  justify-content: center;
+  padding: 16px 32px;
+  font-size: 1rem;
+  border-radius: var(--radius-lg);
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.splash-privacy {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}

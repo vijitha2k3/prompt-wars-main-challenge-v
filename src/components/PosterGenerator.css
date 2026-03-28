@@ -1,0 +1,193 @@
+/* ── Poster Generator Styles ── */
+
+.poster-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* The actual printable poster */
+.poster-card {
+  background: #000;
+  border: 3px solid #ef4444;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 0 60px rgba(239, 68, 68, 0.25), var(--shadow-card);
+}
+
+.poster-header {
+  background: #ef4444;
+  padding: 14px 20px 12px;
+  text-align: center;
+}
+
+.poster-alert-strip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 4px;
+}
+
+.poster-headline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.poster-urgent {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.12em;
+  margin-top: 4px;
+}
+
+.poster-body {
+  display: flex;
+  gap: 0;
+}
+
+.poster-photo-col {
+  width: 140px;
+  flex-shrink: 0;
+  background: #111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 12px;
+  border-right: 1px solid #222;
+  position: relative;
+}
+
+.poster-photo {
+  width: 116px;
+  height: 116px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 2px solid #ef4444;
+}
+
+.poster-photo-placeholder {
+  width: 116px;
+  height: 116px;
+  border: 2px dashed #444;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #555;
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.poster-id-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-full);
+  padding: 3px 8px;
+}
+
+.poster-details-col {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.poster-detail-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.poster-detail-icon {
+  color: #ef4444;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.poster-detail-label {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.poster-detail-value {
+  font-size: 0.82rem;
+  color: #e5e5e5;
+  line-height: 1.4;
+}
+
+.poster-police-block {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-top: 4px;
+  color: #ef4444;
+}
+
+.poster-police-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #ef4444;
+}
+
+.poster-police-phone {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.poster-footer {
+  background: #0a0a0a;
+  border-top: 1px solid #222;
+  padding: 10px 20px;
+  text-align: center;
+}
+
+.poster-footer p {
+  font-size: 0.72rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+.poster-powered {
+  font-size: 0.62rem !important;
+  color: #333 !important;
+  margin-top: 4px;
+}
+
+/* Action buttons */
+.poster-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.poster-actions .btn {
+  flex: 1;
+  min-width: 140px;
+  justify-content: center;
+}
